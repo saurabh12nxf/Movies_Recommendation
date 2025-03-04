@@ -3,23 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie Finder</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Movie Finder - Login</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-
-    <h1>🎬 Movie Finder</h1>
-
-    <div id="search-container">
-        <input type="text" id="search-input" placeholder="Search for a movie...">
-        <button id="search-button">🔍 Search</button>
-        <select id="genre-dropdown">
-            <option value="">Select Genre</option>
-        </select>
+<body class="login-page">
+    <div class="overlay">
+        <div class="login-container">
+            <h1>Welcome to Movie Finder 🎬</h1>
+            <p>Login or Sign up to continue</p>
+            <input type="text" id="username" placeholder="Enter your username">
+            <input type="password" id="password" placeholder="Enter your password">
+            <button id="login-button">Login</button>
+            <p>Don't have an account? <a href="#">Sign up</a></p>
+        </div>
     </div>
-
-    <div id="movie-container"></div>
-
     <script src="script.js"></script>
 </body>
 </html>

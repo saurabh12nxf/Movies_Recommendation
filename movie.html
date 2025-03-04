@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Finder 🎬</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header>
+        <h1>🎬 Movie Finder</h1>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search for a movie...">
+            <button id="search-button">🔍 Search</button>
+            <select id="genre-dropdown">
+                <option value="">🎭 Select Genre</option>
+            </select>
+            <button id="favorites-button">❤️ Favorites</button>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h2>Find Your Next Favorite Movie</h2>
+        <p>Search by title, genre, or browse trending movies.</p>
+    </section>
+
+    <!-- Trending Movies Section -->
+    <section>
+        <h2>🔥 Trending Movies</h2>
+        <div id="trending-movies" class="movie-grid"></div>
+    </section>
+
+    <!-- Movie Search Results -->
+    <section>
+        <h2>🔍 Search Results</h2>
+        <div id="movie-container" class="movie-grid"></div>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>
