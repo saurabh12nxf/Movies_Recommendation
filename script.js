@@ -8,6 +8,11 @@ const trendingMoviesList = document.getElementById("trending-movies");
 const genreDropdown = document.getElementById("genre-dropdown");
 const trendingSection = document.getElementById("trending-section");
 
+// ✅ Check if `trendingSection` exists before accessing it
+if (!trendingSection) {
+    console.warn("⚠ Warning: 'trending-section' not found in the DOM.");
+}
+
 // Fetch Genres and Populate Dropdown
 async function loadGenres() {
     try {
@@ -22,19 +27,22 @@ async function loadGenres() {
             option.textContent = genre.name;
             genreDropdown.appendChild(option);
         });
+
+        console.log("🎭 Genres loaded successfully.");
     } catch (error) {
-        console.error("Error loading genres:", error);
+        console.error("❌ Error loading genres:", error);
     }
 }
 
 // Fetch Trending Movies
 async function getTrendingMovies() {
     try {
-        const response = await fetch(`${API_URL}/trending/movie/day?api_key=${API_KEY}&language=en-US`);
+        const response = await fetch(`${API_URL}/trending/movie/day?api_key=${API_KEY}`);
         const data = await response.json();
         showMovies(data.results, trendingMoviesList);
+        console.log("🔥 Trending movies loaded.");
     } catch (error) {
-        console.error("Error fetching trending movies:", error);
+        console.error("❌ Error fetching trending movies:", error);
     }
 }
 
@@ -42,29 +50,26 @@ async function getTrendingMovies() {
 async function getMovies(movieName) {
     if (!movieName) return;
 
-    // Ensure trendingSection exists before using it
-    if (trendingSection) {
-        trendingSection.style.display = "none"; // Hide trending when searching
-    }
+    // ✅ Hide trending section only if it exists
+    if (trendingSection) trendingSection.style.display = "none";
+
+    console.log(`🔍 Fetching movies for: ${movieName}`);
 
     try {
-        const response = await fetch(`${API_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(movieName)}&include_adult=false&language=en-US&page=1`);
+        const response = await fetch(`${API_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(movieName)}`);
         const data = await response.json();
 
-        movieList.innerHTML = ""; // Clear previous results
+        movieList.innerHTML = ""; 
 
         if (!data.results || data.results.length === 0) {
             movieList.innerHTML = "<p>No movies found. Try a different search.</p>";
-
-            // Show trending again if no results (only if trendingSection exists)
-            if (trendingSection) {
-                trendingSection.style.display = "block";
-            }
         } else {
             showMovies(data.results, movieList);
         }
+
+        console.log("🎥 Movies fetched:", data);
     } catch (error) {
-        console.error("Error fetching movies:", error);
+        console.error("❌ Error fetching movies:", error);
         movieList.innerHTML = "<p>Something went wrong. Please try again later.</p>";
     }
 }
@@ -72,42 +77,34 @@ async function getMovies(movieName) {
 // Fetch Movies by Genre
 async function getMoviesByGenre() {
     const genreId = genreDropdown.value;
-    if (!genreId) {
-        console.warn("No genre selected!");
-        return;
-    }
+    if (!genreId) return;
 
-    // Hide trending section when selecting a genre
-    if (trendingSection) {
-        trendingSection.style.display = "none";
-    }
+    // ✅ Hide trending section only if it exists
+    if (trendingSection) trendingSection.style.display = "none";
+
+    console.log(`🎭 Fetching movies for Genre ID: ${genreId}`);
 
     try {
-        const response = await fetch(`${API_URL}/discover/movie?api_key=${API_KEY}&with_genres=${genreId}&language=en-US&page=1`);
+        const response = await fetch(`${API_URL}/discover/movie?api_key=${API_KEY}&with_genres=${genreId}`);
         const data = await response.json();
 
-        movieList.innerHTML = ""; // Clear previous results
+        movieList.innerHTML = ""; 
 
         if (!data.results || data.results.length === 0) {
             movieList.innerHTML = "<p>No movies found for this genre.</p>";
-
-            // Show trending section again if no results
-            if (trendingSection) {
-                trendingSection.style.display = "block";
-            }
         } else {
             showMovies(data.results, movieList);
         }
+
+        console.log("🎬 Movies by genre fetched:", data);
     } catch (error) {
-        console.error("Error fetching movies by genre:", error);
-        movieList.innerHTML = "<p>Something went wrong. Please try again later.</p>";
+        console.error("❌ Error fetching movies by genre:", error);
     }
 }
 
-
 // Display Movies on Page
 function showMovies(movies, container) {
-    container.innerHTML = ""; // Clear previous results
+    container.innerHTML = ""; 
 
     if (!movies || movies.length === 0) {
         container.innerHTML = "<p>No movies found. Try another search!</p>";
@@ -118,25 +115,33 @@ function showMovies(movies, container) {
         const movieBox = document.createElement("div");
         movieBox.classList.add("movie-card");
 
+        // ✅ Fixed placeholder image
         const posterPath = movie.poster_path 
             ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-            : "https://via.placeholder.com/500x750?text=No+Image";
+            : "https://dummyimage.com/500x750/ccc/fff.png&text=No+Image"; 
 
         movieBox.innerHTML = `
             <img src="${posterPath}" alt="${movie.title}">
             <h3>${movie.title}</h3>
-            <p>⭐ ${movie.vote_average.toFixed(1)}</p>
+            <p>⭐ ${movie.vote_average}</p>
         `;
 
         container.appendChild(movieBox);
     });
 }
 
+// Restore Trending Movies when Search is Cleared
+searchInput.addEventListener("input", () => {
+    if (searchInput.value.trim() === "") {
+        if (trendingSection) trendingSection.style.display = "block";
+        getTrendingMovies();
+    }
+});
+
 // Search with Enter Key
 searchInput.addEventListener("keyup", (event) => {
     if (event.key === "Enter") {
-        const movieName = searchInput.value.trim();
-        getMovies(movieName);
+        searchBtn.click();
     }
 });
 
