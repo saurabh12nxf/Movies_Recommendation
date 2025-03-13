@@ -77,3 +77,22 @@ body {
 .favorite {
     border: 2px solid gold;
 }
+/* 🟢 Make Both Trending and Search Movies Appear in Grid */
+.movie-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Equal poster size */
+    gap: 15px;
+}
+
+/* 🟢 Adjust Movie Card Styles */
+.movie-card {
+    text-align: center;
+    width: 150px; /* Same width for all movie posters */
+}
+
+/* 🟢 Ensure Both Trending & Search Movies Have the Same Size */
+.movie-card img {
+    width: 100%; /* Ensures all posters are equal */
+    height: auto;
+    border-radius: 8px; /* Adds rounded corners */
+}

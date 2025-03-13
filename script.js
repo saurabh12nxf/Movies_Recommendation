@@ -115,7 +115,6 @@ function showMovies(movies, container) {
         const movieBox = document.createElement("div");
         movieBox.classList.add("movie-card");
 
-        // ✅ Fixed placeholder image
         const posterPath = movie.poster_path 
             ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
             : "https://dummyimage.com/500x750/ccc/fff.png&text=No+Image"; 
@@ -129,6 +128,7 @@ function showMovies(movies, container) {
         container.appendChild(movieBox);
     });
 }
+
 
 // Restore Trending Movies when Search is Cleared
 searchInput.addEventListener("input", () => {
