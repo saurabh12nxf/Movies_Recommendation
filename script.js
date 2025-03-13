@@ -8,7 +8,6 @@ const trendingMoviesList = document.getElementById("trending-movies");
 const genreDropdown = document.getElementById("genre-dropdown");
 const trendingSection = document.getElementById("trending-section");
 
-// ✅ Check if `trendingSection` exists before accessing it
 if (!trendingSection) {
     console.warn("⚠ Warning: 'trending-section' not found in the DOM.");
 }
@@ -20,14 +19,12 @@ async function loadGenres() {
         const data = await response.json();
 
         genreDropdown.innerHTML = `<option value="">🎭 Select Genre</option>`;
-
         data.genres.forEach(genre => {
             const option = document.createElement("option");
             option.value = genre.id;
             option.textContent = genre.name;
             genreDropdown.appendChild(option);
         });
-
         console.log("🎭 Genres loaded successfully.");
     } catch (error) {
         console.error("❌ Error loading genres:", error);
@@ -40,7 +37,6 @@ async function getTrendingMovies() {
         const response = await fetch(`${API_URL}/trending/movie/day?api_key=${API_KEY}`);
         const data = await response.json();
         showMovies(data.results, trendingMoviesList);
-        console.log("🔥 Trending movies loaded.");
     } catch (error) {
         console.error("❌ Error fetching trending movies:", error);
     }
@@ -49,28 +45,17 @@ async function getTrendingMovies() {
 // Fetch Movies by Name (Search)
 async function getMovies(movieName) {
     if (!movieName) return;
-
-    // ✅ Hide trending section only if it exists
     if (trendingSection) trendingSection.style.display = "none";
-
-    console.log(`🔍 Fetching movies for: ${movieName}`);
 
     try {
         const response = await fetch(`${API_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(movieName)}`);
         const data = await response.json();
 
-        movieList.innerHTML = ""; 
-
-        if (!data.results || data.results.length === 0) {
-            movieList.innerHTML = "<p>No movies found. Try a different search.</p>";
-        } else {
-            showMovies(data.results, movieList);
-        }
-
-        console.log("🎥 Movies fetched:", data);
+        movieList.innerHTML = "";
+        data.results.length === 0 ? movieList.innerHTML = "<p>No movies found.</p>" : showMovies(data.results, movieList);
     } catch (error) {
         console.error("❌ Error fetching movies:", error);
-        movieList.innerHTML = "<p>Something went wrong. Please try again later.</p>";
+        movieList.innerHTML = "<p>Something went wrong. Try again later.</p>";
     }
 }
 
@@ -78,57 +63,47 @@ async function getMovies(movieName) {
 async function getMoviesByGenre() {
     const genreId = genreDropdown.value;
     if (!genreId) return;
-
-    // ✅ Hide trending section only if it exists
     if (trendingSection) trendingSection.style.display = "none";
-
-    console.log(`🎭 Fetching movies for Genre ID: ${genreId}`);
 
     try {
         const response = await fetch(`${API_URL}/discover/movie?api_key=${API_KEY}&with_genres=${genreId}`);
         const data = await response.json();
 
-        movieList.innerHTML = ""; 
-
-        if (!data.results || data.results.length === 0) {
-            movieList.innerHTML = "<p>No movies found for this genre.</p>";
-        } else {
-            showMovies(data.results, movieList);
-        }
-
-        console.log("🎬 Movies by genre fetched:", data);
+        movieList.innerHTML = "";
+        data.results.length === 0 ? movieList.innerHTML = "<p>No movies found.</p>" : showMovies(data.results, movieList);
     } catch (error) {
         console.error("❌ Error fetching movies by genre:", error);
     }
 }
 
 // Display Movies on Page
-function showMovies(movies, container) {
-    container.innerHTML = ""; 
-
+async function showMovies(movies, container) {
+    container.innerHTML = "";
     if (!movies || movies.length === 0) {
-        container.innerHTML = "<p>No movies found. Try another search!</p>";
+        container.innerHTML = "<p>No movies found.</p>";
         return;
     }
 
-    movies.forEach((movie) => {
+    for (const movie of movies) {
         const movieBox = document.createElement("div");
         movieBox.classList.add("movie-card");
 
         const posterPath = movie.poster_path 
             ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-            : "https://dummyimage.com/500x750/ccc/fff.png&text=No+Image"; 
+            : "https://dummyimage.com/500x750/ccc/fff.png&text=No+Image";
+
+        const trailerKey = await fetchMovieTrailer(movie.id);
 
         movieBox.innerHTML = `
             <img src="${posterPath}" alt="${movie.title}">
             <h3>${movie.title}</h3>
             <p>⭐ ${movie.vote_average}</p>
+            <button onclick="openTrailer('${trailerKey}')">🎬 Watch Trailer</button>
         `;
 
         container.appendChild(movieBox);
-    });
+    }
 }
-
 
 // Restore Trending Movies when Search is Cleared
 searchInput.addEventListener("input", () => {
@@ -154,9 +129,24 @@ document.addEventListener("DOMContentLoaded", () => {
 // Event Listeners
 searchBtn.addEventListener("click", () => {
     const movieName = searchInput.value.trim();
-    if (movieName) {
-        getMovies(movieName);
-    }
+    if (movieName) getMovies(movieName);
 });
 
 genreDropdown.addEventListener("change", getMoviesByGenre);
+
+// Fetch Movie Trailer
+async function fetchMovieTrailer(movieId) {
+    try {
+        const response = await fetch(`${API_URL}/movie/${movieId}/videos?api_key=${API_KEY}&language=en-US`);
+        const data = await response.json();
+        const trailer = data.results.find(video => video.type === "Trailer" && video.site === "YouTube");
+        return trailer ? trailer.key : null;
+    } catch (error) {
+        console.error("❌ Error fetching trailer:", error);
+        return null;
+    }
+}
+
+function openTrailer(trailerKey) {
+    trailerKey ? window.open(`https://www.youtube.com/watch?v=${trailerKey}`, "_blank") : alert("Trailer not available! 😞");
+}
